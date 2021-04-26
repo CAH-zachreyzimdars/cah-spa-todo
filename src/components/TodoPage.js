@@ -1,70 +1,69 @@
-import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
-import Todos from "./Todos";
-import AddTodo from "./AddTodo";
-import axios from "axios";
+import React, { Component } from 'react';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+import Todos from './Todos';
+import AddTodo from './AddTodo';
+import axios from 'axios';
 
-export default function Root(props) {
-  const [state, setState] = useState();
 
-  useEffect(() => {
-    axios
-      .get("https://jsonplaceholder.typicode.com/todos?_limit=10")
-      .then((res) => this.setState({ todos: res.data }));
-  }, []);
+class App extends Component {
+  state = {
+    todos: []
+  }
 
-  const markComplete = (id) => {
-    this.setState({
-      todos: this.state.todos.map((todo) => {
-        if (todo.id === id) {
-          todo.completed = !todo.completed;
-        }
-        return todo;
-      }),
-    });
-  };
+  componentDidMount() {
+    axios.get('http://localhost:3000/json-placeholder/todos?_limit=10')
+    .then(res => this.setState({ todos: res.data }))
+  }
 
-  const delTodo = (id) => {
-    axios
-      .delete(`https://jsonplaceholder.typicode.com/todos/${id}`)
-      .then((res) =>
-        this.setState({
-          todos: [...this.state.todos.filter((todo) => todo.id !== id)],
-        })
-      );
-  };
+  markComplete = (id) => {
+    this.setState({ todos: this.state.todos.map(todo => {
+      if(todo.id === id) {
+        todo.completed = !todo.completed
+      }
+      return todo;
+    })});
+  }
 
-  const addTodo = (title) => {
-    axios
-      .post("https://jsonplaceholder.typicode.com/todos", {
-        title,
-        completed: false,
-      })
-      .then((res) => this.setState({ todos: [...this.state.todos, res.data] }));
-  };
+  delTodo = (id) => {
+    axios.delete(`http://localhost:3000/json-placeholder/todos/${id}`)
+    .then(res => this.setState({ todos: [...this.state.todos.filter(todo => todo.id !== id)]}));
+  }
 
-  return (
-    <section>
-      <Router>
-        <div className="App">
-          <div className="container">
-            <Route
-              exact
-              path="/"
-              render={(props) => (
-                <>
-                  <AddTodo addTodo={this.addTodo} />
-                  <Todos
-                    todos={this.state.todos}
-                    markComplete={this.markComplete}
-                    delTodo={this.delTodo}
-                  />
-                </>
-              )}
-            />
+  addTodo = (title) => {
+    axios.post('http://localhost:3000/json-placeholder/todos', {
+      title,
+      completed: false
+    }).then(res =>
+      this.setState({ todos: [...this.state.todos, res.data] }));
+  }
+
+  render() {
+    return (
+      <section>
+        <Router>
+          <div className="App">
+            <div className="container">
+              <Route
+                exact
+                path="/todo"
+                render={(props) => (
+                  <>
+                    <AddTodo addTodo={this.addTodo} />
+                    <Todos
+                      todos={this.state.todos}
+                      markComplete={this.markComplete}
+                      delTodo={this.delTodo}
+                    />
+                  </>
+                )}
+              />
+            </div>
           </div>
-        </div>
-      </Router>
-    </section>
-  );
+        </Router>
+      </section>
+    );
+  }
 }
+
+export default App;
+
